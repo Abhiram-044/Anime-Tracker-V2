@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from sqlalchemy.exc import IntegrityError
 import pandas as pd
 from menu import menu_with_redirect
+from sql_commands import add_anime
 
 # Helper function to fetch anime data
 def search(q, lim):
@@ -69,24 +70,6 @@ def main():
                 if st.button("Next"):
                     st.session_state.page += 1
 
-def add_anime(anime):
-    rating = st.session_state.get(f"rating_{anime['id']}")
-    status = st.session_state.get(f"status_{anime['id']}")
-    username = st.session_state.get("username")
-    conn = st.connection("mysql", "sql")
-
-    try:
-        sql_statement = f'''INSERT INTO {username} (image_link, title, rating, status) VALUES (:anime_image, :anime_title, :user_rating, :anime_status);'''
-        with conn.session as s:
-            s.execute(sql_statement, {"anime_image": anime["image"], "anime_title": anime["title"], "user_rating": rating, "anime_status": status})
-            s.commit()
-        st.success("Added Succesfully.")
-    except IntegrityError:
-        sql_statement = f'''UPDATE {username} SET rating = :user_rating, status = :anime_status WHERE title = :anime_title;'''
-        with conn.session as s:
-            s.execute(sql_statement, {"user_rating": rating, "anime_status": status, "anime_title": anime["title"]})
-            s.commit()
-        st.success("Updated Show Successfully")
 
 if __name__ == "__main__":
     main()
