@@ -1,6 +1,7 @@
 import streamlit as st
 from menu import menu_with_redirect
 import pandas as pd
+from sql_commands import update_anime
 
 def main():
     menu_with_redirect()
@@ -17,30 +18,15 @@ def main():
         with cols[5].expander("Update"):
             st.markdown("Update Anime")
             st.number_input("Rating", min_value=0, max_value=10, key=f"rating_{i+1}",
-                            on_change=update_anime, args = (anime, i))
+                            on_change=update_anime, args = (anime, i+1))
             st.selectbox(
                 "Choose Status: ",
                 ("Watching", "Completed", "On-Hold", "Dropped", "Plan to Watch"),
                 key=f"status_{i+1}",
-                on_change=update_anime, args=(anime, i)
+                on_change=update_anime, args=(anime, i+1)
             )
-            if st.button("change", key=f"button_{i}"):
+            if st.button("change", key=f"button_{i+1}"):
                 st.rerun()
-
-
-
-
-def update_anime(anime, id):
-    rating = st.session_state.get(f"rating_{id}")
-    status = st.session_state.get(f"status_{id}")
-    username = st.session_state.get("username")
-    conn = st.connection("mysql", "sql")
-
-    sql_statement = f'''UPDATE {username} SET rating = :user_rating, status = :anime_status WHERE title = :anime_title;'''
-    with conn.session as s:
-        s.execute(sql_statement, {"user_rating": rating, "anime_status": status, "anime_title": anime["title"]})
-        s.commit()
-    st.rerun()
 
 
 def get_user_list():
