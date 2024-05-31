@@ -1,3 +1,5 @@
 mysqlclient==2.2.4
 SQLAlchemy==1.4.0
 BeautifulSoup4
+pandas
+numpy
